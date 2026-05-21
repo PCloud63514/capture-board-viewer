@@ -1619,5 +1619,6 @@ web/.docs/local/**
 /res/static/road_index.json
 /res/static/jibun_jamo_ngram_index.txt
 /res/static/road_jamo_ngram_index.txt!/AGENTS.md
-!/.claude/CLAUDE.md
-!/.claude/
+/.claude/CLAUDE.md
+/.claude/
+/AGENTS.md
