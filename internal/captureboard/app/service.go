@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	"capture-board-selector/internal/captureboard/domain"
 )
@@ -35,13 +34,9 @@ func (s *SelectorService) LoadDevices(ctx context.Context) (domain.DeviceCatalog
 		return domain.DeviceCatalog{}, err
 	}
 
-	devices, logFile, err := s.discoverer.Discover(ctx)
+	devices, _, err := s.discoverer.Discover(ctx)
 	if err != nil {
 		return domain.DeviceCatalog{}, err
-	}
-
-	if !devices.HasSelectableDevices() {
-		return domain.DeviceCatalog{}, fmt.Errorf("캡처보드 장치가 연결되어 있지 않습니다. 로그 확인: %s", logFile)
 	}
 
 	return devices, nil
