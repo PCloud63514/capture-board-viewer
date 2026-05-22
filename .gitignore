@@ -754,6 +754,7 @@ pyrightconfig.json
 ### react ###
 .DS_*
 logs
+.gocache/
 **/*.backup.*
 **/*.back.*
 
