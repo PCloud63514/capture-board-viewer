@@ -66,21 +66,22 @@ func main() {
 	fmt.Println("-----------------------------------------------")
 
 	play := exec.Command("ffplay",
+		"-hide_banner",
+		"-loglevel", "error",
 		"-f", "dshow",
 		"-fflags nobuffer",
 		"-flags", "low_delay",
 		"-avioflags", "direct",
 		"-rtbufsize", "512M",
-		"-af", "aresample=resampler=soxr:osf=s32:async=1:min_comp=0.001:first_pts=0",
+		"-af", "aresample=resampler=soxr:osf=s32:async=1:min_comp=0.001:first_pts=0,adelay=0|0",
 		"-use_wallclock_as_timestamps", "1",
 		"-audio_buffer_size", "50",
 		"-async", "1",
-		"-i", fmt.Sprintf("video=%s:audio=%s", video, audio),
+		"-i", fmt.Sprintf("video=%q:audio=%q", video, audio),
 		"-video_size", "1920x1080",
 		"-vf", "scale=1920:1080,setdar=16/9",
 		"-window_title", "Preview",
 		"-x", "1920", "-y", "1080",
-		"-af", "adelay=0|0",
 	)
 	play.Stdout = os.Stdout
 	play.Stderr = os.Stderr
