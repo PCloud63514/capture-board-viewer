@@ -3,6 +3,7 @@ package tui
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -323,11 +324,11 @@ func refreshCmd() tea.Cmd {
 	})
 }
 
-func programInput(enabled bool) *os.File {
+func programInput(enabled bool) io.Reader {
 	if enabled {
 		return os.Stdin
 	}
-	return nil
+	return strings.NewReader("")
 }
 
 func reconcileChoice(choice domain.Selection, devices domain.DeviceCatalog) domain.Selection {
