@@ -2,67 +2,39 @@ package ffmpeg
 
 import (
 	"bytes"
-	"context"
-	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
-	"time"
 
 	"capture-board-selector/internal/captureboard/domain"
 )
 
-type Discoverer struct{}
+type DShowDiscoverer struct{}
 
-func NewDiscoverer() *Discoverer {
-	return &Discoverer{}
+func NewDShowDiscoverer() domain.DeviceDiscoverer {
+	return &DShowDiscoverer{}
 }
 
-func (d *Discoverer) Discover(ctx context.Context) (domain.DeviceCatalog, string, error) {
-	timestamp := time.Now().Format("20060102_150405")
-	if err := os.MkdirAll("logs", 0o755); err != nil {
-		return domain.DeviceCatalog{}, "", err
-	}
-
-	logFile := filepath.Join("logs", fmt.Sprintf("device_output_%s.txt", timestamp))
-	cmd := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-list_devices", "true", "-f", "dshow", "-i", "dummy")
-
+func (d *DShowDiscoverer) Discover() ([]domain.Device, error) {
+	ffmpeg := resolveExe("ffmpeg", FFmpegExe())
+	cmd := exec.Command(ffmpeg, "-hide_banner", "-list_devices", "true", "-f", "dshow", "-i", "dummy")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil && stderr.Len() == 0 {
-		return domain.DeviceCatalog{}, logFile, err
-	}
+	_ = cmd.Run()
 
-	output := stderr.String()
-	if err := os.WriteFile(logFile, []byte(output), 0o644); err != nil {
-		return domain.DeviceCatalog{}, logFile, err
-	}
-
-	return parseDevices(output), logFile, nil
-}
-
-func parseDevices(output string) domain.DeviceCatalog {
-	lines := strings.Split(output, "\n")
-	catalog := domain.DeviceCatalog{}
-
-	for _, line := range lines {
+	var devices []domain.Device
+	for _, line := range strings.Split(stderr.String(), "\n") {
 		line = strings.TrimSpace(strings.ReplaceAll(line, "\uFEFF", ""))
-		switch {
-		case strings.Contains(line, "(video)"):
-			catalog.Videos = append(catalog.Videos, domain.Device{
-				Name: extractDeviceName(line),
-				Kind: domain.DeviceKindVideo,
-			})
-		case strings.Contains(line, "(audio)"):
-			catalog.Audios = append(catalog.Audios, domain.Device{
-				Name: extractDeviceName(line),
-				Kind: domain.DeviceKindAudio,
-			})
+		name := extractDeviceName(line)
+		if name == "" {
+			continue
+		}
+		if strings.Contains(line, "(video)") {
+			devices = append(devices, domain.Device{Name: name, Type: domain.DeviceTypeVideo})
+		} else if strings.Contains(line, "(audio)") {
+			devices = append(devices, domain.Device{Name: name, Type: domain.DeviceTypeAudio})
 		}
 	}
-
-	return catalog
+	return devices, nil
 }
 
 func extractDeviceName(line string) string {
@@ -71,5 +43,5 @@ func extractDeviceName(line string) string {
 	if start >= 0 && end > start {
 		return line[start+1 : end]
 	}
-	return line
+	return ""
 }

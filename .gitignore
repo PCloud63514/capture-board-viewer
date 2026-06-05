@@ -754,7 +754,6 @@ pyrightconfig.json
 ### react ###
 .DS_*
 logs
-.gocache/
 **/*.backup.*
 **/*.back.*
 
@@ -1596,7 +1595,6 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,intellij+iml,intellij+all,visualstudio,visualstudiocode,androidstudio,android,notepadpp,swift,swiftpackagemanager,java,kotlin,go,goland,goland+iml,goland+all,react,reactnative,gradle,maven,python,window,macos,git
 /output/
-/callbot-api
 /.docs/local/pair_coding_talk
 /export/
 
@@ -1610,17 +1608,4 @@ web/.docs/local/**
 !web/.docs/local/
 !web/.docs/local/README.md
 
-# address index
-/res/static/jibun_area_hierarchy_index.json
-/res/static/jibun_eupmyeondong_index.json
-/res/static/jibun_exact_index.json
-/res/static/jibun_index.json
-/res/static/jibun_sigungu_wide_index.json
-/res/static/road_exact_index.json
-/res/static/road_index.json
-/res/static/jibun_jamo_ngram_index.txt
-/res/static/road_jamo_ngram_index.txt!/AGENTS.md
-/.claude/CLAUDE.md
-/.claude/
-/AGENTS.md
 .wiki

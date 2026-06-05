@@ -1,30 +1,32 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"os"
+	captureboard "capture-board-selector/internal/captureboard"
 
-	"capture-board-selector/internal/captureboard"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 )
 
 func main() {
-	ctx := context.Background()
-	selector := captureboard.NewSelector()
-
-	selection, err := selector.Select(ctx)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err)
-		os.Exit(1)
-	}
-
-	if selection.Video == "" || selection.Audio == "" {
-		fmt.Fprintln(os.Stdout, "[INFO] 선택 가능한 장치가 없어 프리뷰를 실행하지 않습니다.")
-		return
-	}
-
-	if err := selector.RunPreview(ctx, selection); err != nil {
-		fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err)
-		os.Exit(1)
-	}
+	fx.New(
+		fx.WithLogger(func() fxevent.Logger { return fxevent.NopLogger }),
+		fx.Provide(
+			captureboard.NewFFmpegChecker,
+			captureboard.NewFFmpegInstaller,
+			captureboard.NewDeviceDiscoverer,
+			captureboard.NewPreviewRunner,
+			captureboard.NewErrorReporter,
+			captureboard.NewCheckFFmpegService,
+			captureboard.NewInstallFFmpegService,
+			captureboard.NewListDevicesService,
+			captureboard.NewRunPreviewService,
+			captureboard.NewTUIApp,
+		),
+		fx.Invoke(func(app captureboard.TUIApp, shut fx.Shutdowner) {
+			go func() {
+				app.Run()
+				shut.Shutdown()
+			}()
+		}),
+	).Run()
 }

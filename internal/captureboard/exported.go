@@ -1,33 +1,46 @@
 package captureboard
 
 import (
-	"context"
-
 	"capture-board-selector/internal/captureboard/api/tui"
 	"capture-board-selector/internal/captureboard/app"
 	"capture-board-selector/internal/captureboard/domain"
-	"capture-board-selector/internal/captureboard/infra/command"
 	"capture-board-selector/internal/captureboard/infra/ffmpeg"
+	infrasentry "capture-board-selector/internal/captureboard/infra/sentry"
 )
 
-type Selector struct {
-	useCase app.SelectorUseCase
+// Infra
+func NewFFmpegChecker() domain.FFmpegChecker      { return ffmpeg.NewChecker() }
+func NewFFmpegInstaller() domain.FFmpegInstaller   { return ffmpeg.NewInstaller() }
+func NewDeviceDiscoverer() domain.DeviceDiscoverer { return ffmpeg.NewDShowDiscoverer() }
+func NewPreviewRunner() domain.PreviewRunner       { return ffmpeg.NewFFplayRunner() }
+func NewErrorReporter() domain.ErrorReporter       { return infrasentry.NewReporter(SentryDSN) }
+
+// App
+func NewCheckFFmpegService(c domain.FFmpegChecker) app.CheckFFmpegUseCase {
+	return app.NewCheckFFmpegService(c)
+}
+func NewInstallFFmpegService(i domain.FFmpegInstaller) app.InstallFFmpegUseCase {
+	return app.NewInstallFFmpegService(i)
+}
+func NewListDevicesService(d domain.DeviceDiscoverer) app.ListDevicesUseCase {
+	return app.NewListDevicesService(d)
+}
+func NewRunPreviewService(r domain.PreviewRunner) app.RunPreviewUseCase {
+	return app.NewRunPreviewService(r)
 }
 
-func NewSelector() *Selector {
-	return &Selector{
-		useCase: app.NewSelectorService(
-			ffmpeg.NewDiscoverer(),
-			ffmpeg.NewPreviewRunner(),
-			command.NewChecker(),
-		),
-	}
+// API
+
+type TUIApp interface {
+	Run() error
 }
 
-func (s *Selector) Select(ctx context.Context) (domain.Selection, error) {
-	return tui.Run(ctx, s.useCase)
-}
-
-func (s *Selector) RunPreview(ctx context.Context, selection domain.Selection) error {
-	return s.useCase.RunPreview(ctx, selection)
+func NewTUIApp(
+	check app.CheckFFmpegUseCase,
+	install app.InstallFFmpegUseCase,
+	list app.ListDevicesUseCase,
+	run app.RunPreviewUseCase,
+	reporter domain.ErrorReporter,
+) TUIApp {
+	return tui.NewApp(check, install, list, run, reporter)
 }

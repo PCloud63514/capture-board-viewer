@@ -1,115 +1,69 @@
-# Capture Board Selector
+# Capture Board Viewer
 
-[블로그-OBS 없이 캡처보드+닌텐도 스위치 디스코드 소리 포함 화면 공유하기](https://pcloud.tistory.com/75)  
+캡처보드의 영상과 소리를 PC에서 바로 미리보기할 수 있는 프로그램입니다.
 
-캡처보드의 영상과 소리를 프로세스로 재생하는 프로그램.
+---
 
+## 다운로드
 
-```sh
-@echo off
-chcp 65001 >nul
-setlocal enabledelayedexpansion
+1. [여기를 클릭](https://github.com/PCloud63514/capture-board-viewer/releases/latest)해서 최신 버전 페이지로 이동합니다.
+2. **Assets** 항목에서 `capture-board-selector.exe` 파일을 클릭해 다운로드합니다.
+3. 다운로드한 `.exe` 파일을 원하는 폴더에 저장합니다.
 
-title Capture Board Selector
-echo ===============================================
-echo   Capture Board Selector
-echo ===============================================
+> 설치 과정은 없습니다. `.exe` 파일 하나만 있으면 됩니다.
 
-rem =================================================
-rem 설정 영역 — 실행 전에 직접 수정하세요
-rem =================================================
-set "VIDEO=StreamLine Mini+ GC311G2"
-set "AUDIO=HDMI(StreamLine Mini+ GC311G2)"
-rem =================================================
+---
 
-rem ▷ ffplay.exe 경로 확인
-where ffplay >nul 2>nul
-if errorlevel 1 (
-  echo [ERROR] ffplay.exe를 찾을 수 없습니다.
-  echo ffplay.exe가 PATH에 등록되어 있지 않거나, ffmpeg\bin 폴더 안에 없습니다.
-  echo -----------------------------------------------
-  echo 현재 경로: %CD%
-  echo -----------------------------------------------
-  pause
-  exit /b
-)
+## 사용 방법
 
-echo.
-echo [INFO] 현재 설정된 장치:
-echo [INFO] VIDEO = %VIDEO%
-echo [INFO] AUDIO = %AUDIO%
-echo.
-echo ===============================================
-rem ▷ 장치 목록 출력
+### 1단계 — 캡처보드 연결
 
-echo.
-echo [INFO] 장치 목록을 불러오는 중입니다...
-ffmpeg -hide_banner -list_devices true -f dshow -i dummy > "%temp%\devicelist.txt" 2>&1
+프로그램을 실행하기 전에 캡처보드를 PC에 연결해 주세요.
 
-echo.
-echo ===============================================
-echo 비디오 장치 목록
-echo ===============================================
+### 2단계 — 프로그램 실행
 
-for /f "tokens=2 delims=]" %%A in ('findstr /I " (video)" "%temp%\devicelist.txt"') do (
-  set "line=%%A"
-  set "line=!line:(video)=!"
-  set "line=!line:"=!"
-  set "line=!line: =!"
-  echo !line!
-)
+다운로드한 `capture-board-selector.exe` 파일을 더블클릭해서 실행합니다.
 
-echo.
-echo ===============================================
-echo 오디오 장치 목록
-echo ===============================================
+### 3단계 — FFmpeg 설치 (최초 1회)
 
-for /f "tokens=2 delims=]" %%A in ('findstr /I " (audio)" "%temp%\devicelist.txt"') do (
-  set "line=%%A"
-  set "line=!line:(audio)=!"
-  set "line=!line:"=!"
-  set "line=!line: =!"
-  echo !line!
-)
+처음 실행하면 아래와 같은 화면이 나타날 수 있습니다.
 
-rem ▷ 장치 존재 여부 확인
-findstr /C:"%VIDEO%" "%temp%\devicelist.txt" >nul
-if errorlevel 1 (
-  echo [ERROR] 비디오 장치 "%VIDEO%" 를 찾을 수 없습니다.
-  echo 장치 이름을 위 목록에서 확인 후 다시 설정하세요.
-  echo -----------------------------------------------
-  pause
-  exit /b
-)
-
-findstr /C:"%AUDIO%" "%temp%\devicelist.txt" >nul
-if errorlevel 1 (
-  echo [ERROR] 오디오 장치 "%AUDIO%" 를 찾을 수 없습니다.
-  echo 장치 이름을 위 목록에서 확인 후 다시 설정하세요.
-  echo -----------------------------------------------
-  pause
-  exit /b
-)
-
-echo [INFO] 장치 확인 완료!
-echo -----------------------------------------------
-
-rem ▷ FFplay 실행
-ffplay -hide_banner -loglevel error -f dshow ^
- -rtbufsize 512M ^
- -use_wallclock_as_timestamps 1 ^
- -audio_buffer_size 50 ^
- -async 1 ^
- -i video="%VIDEO%":audio="%AUDIO%" ^
- -video_size 1920x1080 ^
- -vf scale=1920:1080,setdar=16/9 ^
- -window_title "Preview" ^
- -x 1920 -y 1080 ^
- -sync video ^
- -af "adelay=0|0"
-
-echo -----------------------------------------------
-echo [INFO] 프로그램이 종료되었습니다.
-pause
-endlocal
 ```
+FFmpeg가 설치되어 있지 않습니다.
+
+약 150MB를 다운로드합니다.
+계속하시겠습니까?
+
+[ 설치 ]  [ 종료 ]
+```
+
+**설치** 를 선택하면 자동으로 설치됩니다. 잠시 기다려 주세요.
+
+> 두 번째 실행부터는 이 과정이 없습니다.
+
+### 4단계 — 장치 선택
+
+설치가 끝나면 연결된 캡처보드 목록이 나타납니다.
+
+1. **비디오 장치**를 선택합니다 (캡처보드 이름).
+2. **오디오 장치**를 선택합니다 (캡처보드 오디오).
+3. 선택이 완료되면 미리보기 창이 자동으로 열립니다.
+
+> 화살표 키로 이동, **Enter**로 선택, **ESC**로 뒤로 가거나 종료합니다.
+
+---
+
+## 자주 묻는 질문
+
+**Q. 실행했더니 "Windows의 PC 보호" 경고가 뜹니다.**
+
+Windows Defender가 처음 보는 프로그램을 경고하는 것으로, 악성 소프트웨어가 아닙니다.
+**추가 정보** → **실행** 을 클릭하면 정상적으로 실행됩니다.
+
+**Q. 미리보기 창이 열렸는데 화면이 검습니다.**
+
+캡처보드가 제대로 연결되어 있는지 확인하고, 캡처보드에 연결된 기기(콘솔 등)가 켜져 있는지 확인해 주세요.
+
+**Q. 장치 목록에 캡처보드가 보이지 않습니다.**
+
+USB 케이블을 뽑았다가 다시 꽂은 후 프로그램을 재시작해 주세요.

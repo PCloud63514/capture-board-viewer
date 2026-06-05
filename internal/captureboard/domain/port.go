@@ -1,15 +1,22 @@
 package domain
 
-import "context"
+type FFmpegChecker interface {
+	IsInstalled() bool
+}
+
+type FFmpegInstaller interface {
+	Install(onProgress func(downloaded, total int64)) error
+}
 
 type DeviceDiscoverer interface {
-	Discover(ctx context.Context) (DeviceCatalog, string, error)
+	Discover() ([]Device, error)
 }
 
 type PreviewRunner interface {
-	Run(ctx context.Context, selection Selection) error
+	Run(video Device, audio Device) error
 }
 
-type DependencyChecker interface {
-	Ensure(names ...string) error
+type ErrorReporter interface {
+	Report(err error)
+	Flush()
 }
