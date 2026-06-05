@@ -1,8 +1,10 @@
 PROJECT_NAME := capture-board-selector
 PKG_PATH_BATCH := ./
 SENTRY_DSN ?=
+VERSION := $(shell gh release view --json tagName -q .tagName 2>/dev/null)
 
-LDFLAGS := -X 'capture-board-selector/internal/captureboard.SentryDSN=$(SENTRY_DSN)'
+LDFLAGS := -X 'capture-board-selector/internal/captureboard.SentryDSN=$(SENTRY_DSN)' \
+           -X 'capture-board-selector/internal/captureboard.Version=$(VERSION)'
 
 verify:
 	go mod tidy

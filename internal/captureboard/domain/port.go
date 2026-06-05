@@ -20,3 +20,16 @@ type ErrorReporter interface {
 	Report(err error)
 	Flush()
 }
+
+type UpdateInfo struct {
+	Version     string
+	DownloadURL string
+}
+
+type UpdateChecker interface {
+	Check(currentVersion string) (*UpdateInfo, error)
+}
+
+type UpdateInstaller interface {
+	Install(info UpdateInfo, onProgress func(downloaded, total int64)) error
+}

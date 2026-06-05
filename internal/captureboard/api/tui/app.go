@@ -8,19 +8,25 @@ import (
 )
 
 type App struct {
-	tv            *tview.Application
-	pages         *tview.Pages
-	checkFFmpeg   app.CheckFFmpegUseCase
-	installFFmpeg app.InstallFFmpegUseCase
-	listDevices   app.ListDevicesUseCase
-	runPreview    app.RunPreviewUseCase
-	reporter      domain.ErrorReporter
+	tv             *tview.Application
+	pages          *tview.Pages
+	currentVersion string
+	checkUpdate    app.CheckUpdateUseCase
+	installUpdate  app.InstallUpdateUseCase
+	checkFFmpeg    app.CheckFFmpegUseCase
+	installFFmpeg  app.InstallFFmpegUseCase
+	listDevices    app.ListDevicesUseCase
+	runPreview     app.RunPreviewUseCase
+	reporter       domain.ErrorReporter
 
 	selectedVideo *domain.Device
 	selectedAudio *domain.Device
 }
 
 func NewApp(
+	version string,
+	checkUpdate app.CheckUpdateUseCase,
+	installUpdate app.InstallUpdateUseCase,
 	check app.CheckFFmpegUseCase,
 	install app.InstallFFmpegUseCase,
 	list app.ListDevicesUseCase,
@@ -28,22 +34,29 @@ func NewApp(
 	reporter domain.ErrorReporter,
 ) *App {
 	return &App{
-		tv:            tview.NewApplication(),
-		pages:         tview.NewPages(),
-		checkFFmpeg:   check,
-		installFFmpeg: install,
-		listDevices:   list,
-		runPreview:    run,
-		reporter:      reporter,
+		tv:             tview.NewApplication(),
+		pages:          tview.NewPages(),
+		currentVersion: version,
+		checkUpdate:    checkUpdate,
+		installUpdate:  installUpdate,
+		checkFFmpeg:    check,
+		installFFmpeg:  install,
+		listDevices:    list,
+		runPreview:     run,
+		reporter:       reporter,
 	}
 }
 
 func (a *App) Run() error {
-	if a.checkFFmpeg.Execute() {
-		a.showDeviceSelection()
-	} else {
-		a.showInstallPrompt()
+	proceed := func() {
+		if a.checkFFmpeg.Execute() {
+			a.showDeviceSelection()
+		} else {
+			a.showInstallPrompt()
+		}
 	}
+
+	a.checkForUpdate(proceed)
 
 	if err := a.tv.SetRoot(a.pages, true).Run(); err != nil {
 		return err
