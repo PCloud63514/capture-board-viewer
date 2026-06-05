@@ -8,7 +8,7 @@ verify:
 ci:
 	go mod tidy
 	go mod vendor
-	go build -o $(PROJECT_NAME).exe $(PKG_PATH_BATCH)
+	CGO_ENABLED=0 go build -o $(PROJECT_NAME).exe $(PKG_PATH_BATCH)
 
 run:
 	$(MAKE) ci

@@ -1,30 +1,20 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"os"
-
-	"capture-board-selector/internal/captureboard"
+	"github.com/rivo/tview"
 )
 
 func main() {
-	ctx := context.Background()
-	selector := captureboard.NewSelector()
+	app := tview.NewApplication()
 
-	selection, err := selector.Select(ctx)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err)
-		os.Exit(1)
-	}
+	list := tview.NewList().
+		AddItem("Capture Card A", "video device", 'a', nil).
+		AddItem("Capture Card B", "video device", 'b', nil).
+		AddItem("종료", "", 'q', func() { app.Stop() })
 
-	if selection.Video == "" || selection.Audio == "" {
-		fmt.Fprintln(os.Stdout, "[INFO] 선택 가능한 장치가 없어 프리뷰를 실행하지 않습니다.")
-		return
-	}
+	list.SetBorder(true).SetTitle(" 비디오 장치 선택 ").SetTitleAlign(tview.AlignLeft)
 
-	if err := selector.RunPreview(ctx, selection); err != nil {
-		fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err)
-		os.Exit(1)
+	if err := app.SetRoot(list, true).Run(); err != nil {
+		panic(err)
 	}
 }
