@@ -5,7 +5,8 @@ import (
 	"capture-board-selector/internal/captureboard/app"
 	"capture-board-selector/internal/captureboard/domain"
 	"capture-board-selector/internal/captureboard/infra/ffmpeg"
-	"capture-board-selector/internal/captureboard/infra/release"
+	"capture-board-selector/internal/captureboard/infra/ghrelease"
+
 	infrasentry "capture-board-selector/internal/captureboard/infra/sentry"
 	"capture-board-selector/internal/captureboard/infra/updater"
 )
@@ -16,7 +17,7 @@ func NewFFmpegInstaller() domain.FFmpegInstaller   { return ffmpeg.NewInstaller(
 func NewDeviceDiscoverer() domain.DeviceDiscoverer { return ffmpeg.NewDShowDiscoverer() }
 func NewPreviewRunner() domain.PreviewRunner       { return ffmpeg.NewFFplayRunner() }
 func NewErrorReporter() domain.ErrorReporter       { return infrasentry.NewReporter(SentryDSN) }
-func NewUpdateChecker() domain.UpdateChecker       { return release.NewGitHubChecker() }
+func NewUpdateChecker() domain.UpdateChecker       { return ghrelease.NewGitHubChecker() }
 func NewUpdateInstaller() domain.UpdateInstaller   { return updater.NewInstaller() }
 
 // App
