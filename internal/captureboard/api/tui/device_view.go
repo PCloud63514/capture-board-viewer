@@ -55,7 +55,7 @@ func (a *App) showVideoSelection(videos, audios []domain.Device) {
 	list.SetDoneFunc(func() { a.tv.Stop() })
 
 	list.SetBorder(true).
-		SetTitle(" 비디오 장치 선택  |  ESC: 종료 ").
+		SetTitle(fmt.Sprintf(" 비디오 장치 선택  |  ESC: 종료  |  %s ", a.currentVersion)).
 		SetTitleAlign(tview.AlignLeft)
 
 	a.pages.AddAndSwitchToPage("video_select", list, true)
