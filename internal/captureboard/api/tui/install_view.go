@@ -47,7 +47,7 @@ func (a *App) startInstall() {
 
 		a.tv.QueueUpdateDraw(func() {
 			if err != nil {
-				a.showError("설치 실패", err.Error())
+				a.showError("설치 실패", err)
 				return
 			}
 			a.showDeviceSelection()
@@ -55,14 +55,38 @@ func (a *App) startInstall() {
 	}()
 }
 
-func (a *App) showError(title, message string) {
-	modal := tview.NewModal().
-		SetText(fmt.Sprintf("[red]%s[-]\n\n%s", title, message)).
-		AddButtons([]string{"종료"}).
-		SetDoneFunc(func(_ int, _ string) { a.tv.Stop() })
+func (a *App) showError(title string, err error) {
+	text := fmt.Sprintf("[red]%s[-]\n\n%s", title, err.Error())
+	modal := tview.NewModal().SetText(text)
+
+	if a.reporter != nil {
+		modal.AddButtons([]string{"오류 전송 후 종료", "그냥 종료"}).
+			SetDoneFunc(func(idx int, _ string) {
+				if idx == 0 {
+					a.sendErrorReport(err)
+				} else {
+					a.tv.Stop()
+				}
+			})
+	} else {
+		modal.AddButtons([]string{"종료"}).
+			SetDoneFunc(func(_ int, _ string) { a.tv.Stop() })
+	}
+
 	a.pages.AddAndSwitchToPage("error", modal, true)
 }
 
+func (a *App) sendErrorReport(err error) {
+	sending := tview.NewModal().
+		SetText("오류 정보를 개발자에게 전송하고 있습니다...\n\n잠시만 기다려 주세요.")
+	a.pages.AddAndSwitchToPage("sending", sending, true)
+
+	go func() {
+		a.reporter.Report(err)
+		a.reporter.Flush()
+		a.tv.QueueUpdateDraw(func() { a.tv.Stop() })
+	}()
+}
 
 func buildProgressText(downloaded, total int64) string {
 	const barWidth = 30

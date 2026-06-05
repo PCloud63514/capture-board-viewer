@@ -14,6 +14,7 @@ type App struct {
 	installFFmpeg app.InstallFFmpegUseCase
 	listDevices   app.ListDevicesUseCase
 	runPreview    app.RunPreviewUseCase
+	reporter      domain.ErrorReporter
 
 	selectedVideo *domain.Device
 	selectedAudio *domain.Device
@@ -24,6 +25,7 @@ func NewApp(
 	install app.InstallFFmpegUseCase,
 	list app.ListDevicesUseCase,
 	run app.RunPreviewUseCase,
+	reporter domain.ErrorReporter,
 ) *App {
 	return &App{
 		tv:            tview.NewApplication(),
@@ -32,6 +34,7 @@ func NewApp(
 		installFFmpeg: install,
 		listDevices:   list,
 		runPreview:    run,
+		reporter:      reporter,
 	}
 }
 

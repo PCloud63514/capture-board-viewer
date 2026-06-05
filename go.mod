@@ -14,6 +14,7 @@ require (
 	github.com/bodgit/windows v1.0.1 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/gdamore/tcell/v2 v2.8.1 // indirect
+	github.com/getsentry/sentry-go v0.46.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

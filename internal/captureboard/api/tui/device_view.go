@@ -15,7 +15,7 @@ func (a *App) showDeviceSelection() {
 		devices, err := a.listDevices.Execute()
 		a.tv.QueueUpdateDraw(func() {
 			if err != nil {
-				a.showError("장치 오류", err.Error())
+				a.showError("장치 오류", err)
 				return
 			}
 
@@ -30,11 +30,11 @@ func (a *App) showDeviceSelection() {
 			}
 
 			if len(videos) == 0 {
-				a.showError("장치 없음", "연결된 비디오 장치를 찾을 수 없습니다.\n캡처보드가 연결되어 있는지 확인하세요.")
+				a.showError("장치 없음", fmt.Errorf("연결된 비디오 장치를 찾을 수 없습니다.\n캡처보드가 연결되어 있는지 확인하세요."))
 				return
 			}
 			if len(audios) == 0 {
-				a.showError("장치 없음", "연결된 오디오 장치를 찾을 수 없습니다.")
+				a.showError("장치 없음", fmt.Errorf("연결된 오디오 장치를 찾을 수 없습니다."))
 				return
 			}
 

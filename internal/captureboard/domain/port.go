@@ -15,3 +15,8 @@ type DeviceDiscoverer interface {
 type PreviewRunner interface {
 	Run(video Device, audio Device) error
 }
+
+type ErrorReporter interface {
+	Report(err error)
+	Flush()
+}

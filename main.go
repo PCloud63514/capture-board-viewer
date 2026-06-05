@@ -15,6 +15,7 @@ func main() {
 			captureboard.NewFFmpegInstaller,
 			captureboard.NewDeviceDiscoverer,
 			captureboard.NewPreviewRunner,
+			captureboard.NewErrorReporter,
 			captureboard.NewCheckFFmpegService,
 			captureboard.NewInstallFFmpegService,
 			captureboard.NewListDevicesService,
