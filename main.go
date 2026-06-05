@@ -1,20 +1,31 @@
 package main
 
 import (
-	"github.com/rivo/tview"
+	captureboard "capture-board-selector/internal/captureboard"
+
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 )
 
 func main() {
-	app := tview.NewApplication()
-
-	list := tview.NewList().
-		AddItem("Capture Card A", "video device", 'a', nil).
-		AddItem("Capture Card B", "video device", 'b', nil).
-		AddItem("종료", "", 'q', func() { app.Stop() })
-
-	list.SetBorder(true).SetTitle(" 비디오 장치 선택 ").SetTitleAlign(tview.AlignLeft)
-
-	if err := app.SetRoot(list, true).Run(); err != nil {
-		panic(err)
-	}
+	fx.New(
+		fx.WithLogger(func() fxevent.Logger { return fxevent.NopLogger }),
+		fx.Provide(
+			captureboard.NewFFmpegChecker,
+			captureboard.NewFFmpegInstaller,
+			captureboard.NewDeviceDiscoverer,
+			captureboard.NewPreviewRunner,
+			captureboard.NewCheckFFmpegService,
+			captureboard.NewInstallFFmpegService,
+			captureboard.NewListDevicesService,
+			captureboard.NewRunPreviewService,
+			captureboard.NewTUIApp,
+		),
+		fx.Invoke(func(app captureboard.TUIApp, shut fx.Shutdowner) {
+			go func() {
+				app.Run()
+				shut.Shutdown()
+			}()
+		}),
+	).Run()
 }
