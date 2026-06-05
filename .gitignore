@@ -1607,3 +1607,5 @@ FodyWeavers.xsd
 web/.docs/local/**
 !web/.docs/local/
 !web/.docs/local/README.md
+
+.wiki
