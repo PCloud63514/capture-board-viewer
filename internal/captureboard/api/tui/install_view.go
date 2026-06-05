@@ -63,14 +63,6 @@ func (a *App) showError(title, message string) {
 	a.pages.AddAndSwitchToPage("error", modal, true)
 }
 
-func (a *App) showDeviceSelection() {
-	// 다음 단계: 장치 선택 (추후 구현)
-	modal := tview.NewModal().
-		SetText("FFmpeg 준비 완료!\n\n장치 선택 화면은 다음 단계에서 구현됩니다.").
-		AddButtons([]string{"종료"}).
-		SetDoneFunc(func(_ int, _ string) { a.tv.Stop() })
-	a.pages.AddAndSwitchToPage("ready", modal, true)
-}
 
 func buildProgressText(downloaded, total int64) string {
 	const barWidth = 30
