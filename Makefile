@@ -15,6 +15,10 @@ ci:
 	go mod vendor
 	go build -ldflags "$(LDFLAGS)" -o $(PROJECT_NAME).exe $(PKG_PATH_BATCH)
 
+installer:
+	$(MAKE) ci
+	iscc /DMyAppVersion=$(VERSION) setup.iss
+
 run:
 	$(MAKE) ci
 	./$(PROJECT_NAME).exe
