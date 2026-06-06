@@ -1,13 +1,17 @@
 package tui
 
 import (
-	"capture-board-selector/internal/captureboard/domain"
 	"fmt"
+
+	"capture-board-selector/internal/captureboard/domain"
+	"capture-board-selector/internal/captureboard/infra/logger"
 
 	"github.com/rivo/tview"
 )
 
 func (a *App) showDeviceSelection() {
+	logger.Log("장치", "장치 목록 요청")
+
 	loading := tview.NewModal().SetText("장치 검색 중...")
 	a.pages.AddAndSwitchToPage("loading", loading, true)
 
@@ -50,6 +54,7 @@ func (a *App) showVideoSelection(videos, audios []domain.Device) {
 	}
 
 	list.SetSelectedFunc(func(idx int, _ string, _ string, _ rune) {
+		logger.Log("선택", fmt.Sprintf("비디오: %s", videos[idx].Name))
 		a.showAudioSelection(videos[idx], audios)
 	})
 	list.SetDoneFunc(func() { a.tv.Stop() })
@@ -68,6 +73,7 @@ func (a *App) showAudioSelection(video domain.Device, audios []domain.Device) {
 	}
 
 	list.SetSelectedFunc(func(idx int, _ string, _ string, _ rune) {
+		logger.Log("선택", fmt.Sprintf("오디오: %s", audios[idx].Name))
 		a.selectedVideo = &video
 		a.selectedAudio = &audios[idx]
 		a.tv.Stop()

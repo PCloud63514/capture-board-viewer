@@ -5,15 +5,19 @@ import (
 	"strings"
 
 	"capture-board-selector/internal/captureboard/domain"
+	"capture-board-selector/internal/captureboard/infra/logger"
 
 	"github.com/rivo/tview"
 )
 
 func (a *App) checkForUpdate(onDone func()) {
 	if a.currentVersion == "" {
+		logger.Log("업데이트", "버전 정보 없음, 확인 건너뜀")
 		onDone()
 		return
 	}
+
+	logger.Log("업데이트", "최신 버전 확인 중...")
 
 	checking := tview.NewModal().SetText("업데이트 확인 중...")
 	a.pages.AddAndSwitchToPage("update_check", checking, true)
@@ -21,10 +25,17 @@ func (a *App) checkForUpdate(onDone func()) {
 	go func() {
 		info, err := a.checkUpdate.Execute(a.currentVersion)
 		a.tv.QueueUpdateDraw(func() {
-			if err != nil || info == nil {
+			if err != nil {
+				logger.Log("업데이트", fmt.Sprintf("확인 실패: %v", err))
 				onDone()
 				return
 			}
+			if info == nil {
+				logger.Log("업데이트", "최신 버전 사용 중")
+				onDone()
+				return
+			}
+			logger.Log("업데이트", fmt.Sprintf("새 버전 발견: %s", info.Version))
 			a.showUpdatePrompt(info, onDone)
 		})
 	}()
@@ -37,8 +48,10 @@ func (a *App) showUpdatePrompt(info *domain.UpdateInfo, onSkip func()) {
 		AddButtons([]string{"업데이트", "나중에"}).
 		SetDoneFunc(func(idx int, _ string) {
 			if idx == 0 {
+				logger.Log("업데이트", fmt.Sprintf("사용자가 업데이트 선택: %s", info.Version))
 				a.startUpdate(info)
 			} else {
+				logger.Log("업데이트", "사용자가 업데이트 건너뜀")
 				onSkip()
 			}
 		})
@@ -66,9 +79,12 @@ func (a *App) startUpdate(info *domain.UpdateInfo) {
 		})
 
 		if err != nil {
+			logger.Log("업데이트", fmt.Sprintf("다운로드 실패: %v", err))
 			a.tv.QueueUpdateDraw(func() {
 				a.showError("업데이트 실패", err)
 			})
+		} else {
+			logger.Log("업데이트", "다운로드 완료, 재시작 중...")
 		}
 	}()
 }

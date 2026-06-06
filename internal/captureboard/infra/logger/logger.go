@@ -5,40 +5,75 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"sync"
 	"time"
 )
 
 const maxLogFiles = 15
 
+var (
+	mu   sync.Mutex
+	file *os.File
+)
+
 func logDir() string {
 	return filepath.Join(os.Getenv("APPDATA"), "capture-board-viewer", "logs")
 }
 
-func LogDir() string {
-	return logDir()
-}
+func LogDir() string { return logDir() }
 
-func Write(name, content string) error {
+func Start(version string) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if version == "" {
+		version = "dev"
+	}
+
 	dir := logDir()
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("로그 디렉토리 생성 실패: %w", err)
+		return
 	}
 
-	timestamp := time.Now().Format("20060102_150405")
-	filename := filepath.Join(dir, fmt.Sprintf("%s_%s.log", name, timestamp))
-	if err := os.WriteFile(filename, []byte(content), 0644); err != nil {
-		return fmt.Errorf("로그 파일 저장 실패: %w", err)
+	ts := time.Now().Format("20060102_150405")
+	path := filepath.Join(dir, fmt.Sprintf("session_%s.log", ts))
+	f, err := os.Create(path)
+	if err != nil {
+		return
 	}
+	file = f
 
-	return rotate(dir)
+	fmt.Fprintf(file, "====================================\n")
+	fmt.Fprintf(file, "Capture Board Viewer %s\n", version)
+	fmt.Fprintf(file, "시작: %s\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(file, "====================================\n\n")
+
+	rotate(dir)
 }
 
-func rotate(dir string) error {
+func Log(section, msg string) {
+	mu.Lock()
+	defer mu.Unlock()
+	if file == nil {
+		return
+	}
+	fmt.Fprintf(file, "[%s] [%s] %s\n", time.Now().Format("15:04:05"), section, msg)
+}
+
+func Close() {
+	mu.Lock()
+	defer mu.Unlock()
+	if file != nil {
+		file.Close()
+		file = nil
+	}
+}
+
+func rotate(dir string) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return err
+		return
 	}
-
 	var files []os.FileInfo
 	for _, e := range entries {
 		if e.IsDir() {
@@ -50,17 +85,13 @@ func rotate(dir string) error {
 		}
 		files = append(files, info)
 	}
-
 	if len(files) <= maxLogFiles {
-		return nil
+		return
 	}
-
 	sort.Slice(files, func(i, j int) bool {
 		return files[i].ModTime().Before(files[j].ModTime())
 	})
-
 	for _, f := range files[:len(files)-maxLogFiles] {
 		os.Remove(filepath.Join(dir, f.Name()))
 	}
-	return nil
 }

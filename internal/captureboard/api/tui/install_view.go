@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"capture-board-selector/internal/captureboard/infra/logger"
+
 	"github.com/rivo/tview"
 )
 
 const approxSizeMB = 150
 
 func (a *App) showInstallPrompt() {
+	logger.Log("FFmpeg", "설치 필요 — 사용자에게 확인 요청")
+
 	modal := tview.NewModal().
 		SetText(fmt.Sprintf(
 			"FFmpeg가 설치되어 있지 않습니다.\n\n약 %dMB를 다운로드합니다.\n계속하시겠습니까?",
@@ -20,6 +24,7 @@ func (a *App) showInstallPrompt() {
 			if idx == 0 {
 				a.startInstall()
 			} else {
+				logger.Log("FFmpeg", "사용자가 설치 거부, 종료")
 				a.tv.Stop()
 			}
 		})
@@ -27,6 +32,8 @@ func (a *App) showInstallPrompt() {
 }
 
 func (a *App) startInstall() {
+	logger.Log("FFmpeg", "설치 시작")
+
 	statusText := tview.NewTextView().
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
@@ -47,15 +54,19 @@ func (a *App) startInstall() {
 
 		a.tv.QueueUpdateDraw(func() {
 			if err != nil {
+				logger.Log("FFmpeg", fmt.Sprintf("설치 실패: %v", err))
 				a.showError("설치 실패", err)
 				return
 			}
+			logger.Log("FFmpeg", "설치 완료")
 			a.showDeviceSelection()
 		})
 	}()
 }
 
 func (a *App) showError(title string, err error) {
+	logger.Log("오류", fmt.Sprintf("%s: %v", title, err))
+
 	text := fmt.Sprintf("[red]%s[-]\n\n%s", title, err.Error())
 	modal := tview.NewModal().SetText(text)
 
@@ -77,6 +88,8 @@ func (a *App) showError(title string, err error) {
 }
 
 func (a *App) sendErrorReport(err error) {
+	logger.Log("오류", "Sentry에 오류 전송 중")
+
 	sending := tview.NewModal().
 		SetText("오류 정보를 개발자에게 전송하고 있습니다...\n\n잠시만 기다려 주세요.")
 	a.pages.AddAndSwitchToPage("sending", sending, true)
@@ -84,6 +97,7 @@ func (a *App) sendErrorReport(err error) {
 	go func() {
 		a.reporter.Report(err)
 		a.reporter.Flush()
+		logger.Log("오류", "전송 완료")
 		a.tv.QueueUpdateDraw(func() { a.tv.Stop() })
 	}()
 }

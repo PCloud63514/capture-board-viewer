@@ -1,8 +1,11 @@
 package tui
 
 import (
+	"fmt"
+
 	"capture-board-selector/internal/captureboard/app"
 	"capture-board-selector/internal/captureboard/domain"
+	"capture-board-selector/internal/captureboard/infra/logger"
 
 	"github.com/rivo/tview"
 )
@@ -48,7 +51,13 @@ func NewApp(
 }
 
 func (a *App) Run() error {
+	logger.Start(a.currentVersion)
+	defer logger.Close()
+
+	logger.Log("시작", fmt.Sprintf("버전: %s", a.currentVersion))
+
 	proceed := func() {
+		logger.Log("FFmpeg", "설치 여부 확인 중")
 		if a.checkFFmpeg.Execute() {
 			a.showDeviceSelection()
 		} else {
@@ -63,6 +72,7 @@ func (a *App) Run() error {
 	}
 
 	if a.selectedVideo != nil && a.selectedAudio != nil {
+		logger.Log("실행", fmt.Sprintf("ffplay 시작 — 비디오: %s, 오디오: %s", a.selectedVideo.Name, a.selectedAudio.Name))
 		return a.runPreview.Execute(*a.selectedVideo, *a.selectedAudio)
 	}
 	return nil
