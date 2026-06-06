@@ -7,10 +7,8 @@
 ## 다운로드
 
 1. [여기를 클릭](https://github.com/PCloud63514/capture-board-viewer/releases/latest)해서 최신 버전 페이지로 이동합니다.
-2. **Assets** 항목에서 `capture-board-viewer-setup-vX.X.X.exe` 파일을 클릭해 다운로드합니다.
-3. 다운로드한 파일을 실행하고 설치 안내를 따릅니다.
-
-> 설치 후 바탕화면에 **Capture Board Viewer** 바로가기가 생성됩니다.
+2. **Assets** 항목에서 `capture-board-selector.exe` 파일을 클릭해 다운로드합니다.
+3. 다운로드한 파일을 더블클릭해서 실행합니다.
 
 ---
 
