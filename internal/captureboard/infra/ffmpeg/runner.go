@@ -1,11 +1,13 @@
 package ffmpeg
 
 import (
+	"bufio"
 	"fmt"
-	"os"
 	"os/exec"
+	"strings"
 
 	"capture-board-selector/internal/captureboard/domain"
+	"capture-board-selector/internal/captureboard/infra/logger"
 )
 
 type FFplayRunner struct{}
@@ -36,9 +38,24 @@ func (r *FFplayRunner) Run(video domain.Device, audio domain.Device) error {
 		"-x", "1920", "-y", "1080",                                                      // 창 크기
 		"-af", "adelay=0|0",                                                              // 오디오 지연 없음 (좌/우 채널 0ms)
 	)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return cmd.Run()
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(stderr)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line != "" {
+			logger.Log("ffplay", line)
+		}
+	}
+
+	return cmd.Wait()
 }
 
 // resolveExe returns the system command if available, otherwise falls back to the APPDATA path.
