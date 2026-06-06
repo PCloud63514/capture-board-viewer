@@ -14,7 +14,7 @@ import (
 // Infra
 func NewFFmpegChecker() domain.FFmpegChecker      { return ffmpeg.NewChecker() }
 func NewFFmpegInstaller() domain.FFmpegInstaller   { return ffmpeg.NewInstaller() }
-func NewDeviceDiscoverer() domain.DeviceDiscoverer { return ffmpeg.NewDShowDiscoverer() }
+func NewDeviceDiscoverer() domain.DeviceDiscoverer { return ffmpeg.NewDShowDiscoverer(Version) }
 func NewPreviewRunner() domain.PreviewRunner       { return ffmpeg.NewFFplayRunner() }
 func NewErrorReporter() domain.ErrorReporter       { return infrasentry.NewReporter(SentryDSN) }
 func NewUpdateChecker() domain.UpdateChecker       { return ghrelease.NewGitHubChecker() }
