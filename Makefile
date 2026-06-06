@@ -13,7 +13,7 @@ verify:
 ci:
 	go mod tidy
 	go mod vendor
-	goversioninfo -o resource.syso versioninfo.json
+	go run github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest -o resource.syso versioninfo.json
 	go build -ldflags "$(LDFLAGS)" -o $(PROJECT_NAME).exe $(PKG_PATH_BATCH)
 
 run:
