@@ -1610,4 +1610,4 @@ web/.docs/local/**
 
 .wikidist/
 resource.syso
-/.wiki/
+/.wiki
