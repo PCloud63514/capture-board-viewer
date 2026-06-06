@@ -1609,3 +1609,4 @@ web/.docs/local/**
 !web/.docs/local/README.md
 
 .wikidist/
+resource.syso

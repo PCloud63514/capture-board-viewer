@@ -1,0 +1,31 @@
+{
+  "FixedFileInfo": {
+    "FileVersion": {
+      "Major": 1,
+      "Minor": 1,
+      "Patch": 2,
+      "Build": 0
+    },
+    "ProductVersion": {
+      "Major": 1,
+      "Minor": 1,
+      "Patch": 2,
+      "Build": 0
+    }
+  },
+  "StringFileInfo": {
+    "CompanyName": "GraftTeam",
+    "FileDescription": "Capture Board Viewer",
+    "InternalName": "capture-board-selector",
+    "LegalCopyright": "GraftTeam",
+    "OriginalFilename": "capture-board-selector.exe",
+    "ProductName": "Capture Board Viewer"
+  },
+  "VarFileInfo": {
+    "Translation": {
+      "LangID": "0412",
+      "CharsetID": "04B0"
+    }
+  },
+  "IconPath": "assets/icon.ico"
+}
